@@ -1,0 +1,92 @@
+TrackFull($trackId: String!, $relatedAlbumsFirst: Int) {
+  track(trackId: $trackId) {
+    ...TrackMasthead
+    ...TrackLyrics
+    ...TrackRelatedAlbums
+    __typename
+  }
+}
+
+fragment TrackMasthead on Track {
+  ...TrackBase
+  duration
+  isExplicit
+  __typename
+}
+
+fragment TrackBase on Track {
+  id
+  title
+  ...TrackContributors
+  album {
+    id
+    displayTitle
+    cover {
+      small: urls(pictureRequest: {width: 100, height: 100})
+      medium: urls(pictureRequest: {width: 264, height: 264})
+      large: urls(pictureRequest: {width: 500, height: 500})
+      explicitStatus
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment TrackContributors on Track {
+  contributors {
+    edges {
+      cursor
+      roles
+      node {
+        ... on Artist {
+          id
+          name
+          picture {
+            small: urls(pictureRequest: {width: 100, height: 100})
+            medium: urls(pictureRequest: {width: 264, height: 264})
+            large: urls(pictureRequest: {width: 500, height: 500})
+            copyright
+            explicitStatus
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
+}
+    __typename
+  }
+  __typename
+}
+
+fragment TrackLyrics on Track {
+  id
+  lyrics {
+    id
+    copyright
+    synchronizedLines {
+      line
+      __typename
+    }
+    text
+    writers
+    __typename
+  }
+  __typename
+}
+
+fragment TrackRelatedAlbums on Track {
+  relatedTracks(first: $relatedAlbumsFirst) {
+    edges {
+      node {
+        ...TrackBase
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
