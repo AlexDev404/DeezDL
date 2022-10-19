@@ -1,1 +1,2 @@
-metadata -> title/artist -> lookup on youtube -> download the video -> ffmpeg convert mp4 to mp3 -> rest of metadata to tag mp3 -> save0
+metadata -> title/artist -> lookup on youtube -> download the video -> ffmpeg convert mp4 to mp3 -> rest of metadata to tag mp3 -> save
+done     ->     done     ->         done      ->        done        ->          done             ->             done            -> done
