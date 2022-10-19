@@ -1,0 +1,94 @@
+{
+	"data": {
+		"track": {
+			"id": "602456552",
+			"title": "Sunflower (Spider-Man: Into the Spider-Verse)",
+			"contributors": {
+				"edges": [
+					{
+						"cursor": "7543848",
+						"roles": [
+							"MAIN"
+						],
+						"node": {
+							"id": "7543848",
+							"name": "Post Malone",
+							"picture": {
+								"small": [
+									"https://e-cdn-images.dzcdn.net/images/artist/a5a8cca44e7eab2db7d44e039bed2574/100x100-000000-80-0-0.jpg"
+								],
+								"medium": [
+									"https://e-cdn-images.dzcdn.net/images/artist/a5a8cca44e7eab2db7d44e039bed2574/264x264-000000-80-0-0.jpg"
+								],
+								"large": [
+									"https://e-cdn-images.dzcdn.net/images/artist/a5a8cca44e7eab2db7d44e039bed2574/500x500-000000-80-0-0.jpg"
+								],
+								"copyright": "",
+								"explicitStatus": false,
+								"__typename": "Picture"
+							},
+							"__typename": "Artist"
+						},
+						"__typename": "TrackContributorsEdge"
+					},
+					{
+						"cursor": "7627172",
+						"roles": [
+							"MAIN"
+						],
+						"node": {
+							"id": "7627172",
+							"name": "Swae Lee",
+							"picture": {
+								"small": [
+									"https://e-cdn-images.dzcdn.net/images/artist/3d1effd006d598d5804933bf76d309ee/100x100-000000-80-0-0.jpg"
+								],
+								"medium": [
+									"https://e-cdn-images.dzcdn.net/images/artist/3d1effd006d598d5804933bf76d309ee/264x264-000000-80-0-0.jpg"
+								],
+								"large": [
+									"https://e-cdn-images.dzcdn.net/images/artist/3d1effd006d598d5804933bf76d309ee/500x500-000000-80-0-0.jpg"
+								],
+								"copyright": null,
+								"explicitStatus": false,
+								"__typename": "Picture"
+							},
+							"__typename": "Artist"
+						},
+						"__typename": "TrackContributorsEdge"
+					}
+				],
+				"__typename": "TrackContributorsConnection"
+			},
+			"__typename": "Track",
+			"album": {
+				"id": "81457652",
+				"displayTitle": "Spider-Man: Into the Spider-Verse (Soundtrack From & Inspired by the Motion Picture)",
+				"cover": {
+					"small": [
+						"https://e-cdn-images.dzcdn.net/images/cover/1aa3dfe91b3e5d3bc71eca6b6e9c8d39/100x100-000000-80-0-0.jpg"
+					],
+					"medium": [
+						"https://e-cdn-images.dzcdn.net/images/cover/1aa3dfe91b3e5d3bc71eca6b6e9c8d39/264x264-000000-80-0-0.jpg"
+					],
+					"large": [
+						"https://e-cdn-images.dzcdn.net/images/cover/1aa3dfe91b3e5d3bc71eca6b6e9c8d39/500x500-000000-80-0-0.jpg"
+					],
+					"explicitStatus": false,
+					"__typename": "Picture"
+				},
+				"__typename": "Album"
+			},
+			"duration": 158,
+			"isExplicit": false,
+			"lyrics": null,
+			"relatedTracks": {
+				"edges": [],
+				"__typename": "TrackRelatedTracksConnection"
+			}
+		}
+	},
+	"extensions": {
+		"cost": 151
+	}
+}
