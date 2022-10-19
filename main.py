@@ -3,7 +3,7 @@ import ffmpeg
 import os
 import requests
 from urllib.parse import urlparse
-from mp3_tagger import MP3File, VERSION_1, VERSION_2, VERSION_BOTH
+from mutagen.easyid3 import EasyID3
 from youtube_dl import YoutubeDL
 
 
@@ -73,8 +73,8 @@ _meta = {
     #######################
     "artist": "STRING",  # Track Artist
     "album": "STRING",  # Album Name
-    "song": "STRING",  # Song Title
-    "track": "0",  # Track #
+    "title": "STRING",  # Song Title
+    "tracknumber": "0",  # Track #
     "comment": "YT_URL",  # YouTube URL
     "year": "0",  # Year of Composition
     # "genre": "255",  # Genre (12 - Other)
@@ -93,7 +93,7 @@ _meta["artwork"] = artwork
 # TRACK / ALBUM NAME
 print("Track Title: " + metadata["title"])
 print("Album Name: " + metadata["album"]["displayTitle"])
-_meta["song"] = metadata["title"]
+_meta["title"] = metadata["title"]
 _meta["album"] = metadata["album"]["displayTitle"]
 
 # ARTISTS
@@ -123,23 +123,23 @@ metadata = _meta
 download(metadata["artwork"], os.path.join(os.getcwd(), "temp"))
 
 # Sift through YouTube for the track and download m4a format
-search(f"{metadata['artist']} - {metadata['song']}", metadata)
+search(f"{metadata['artist']} - {metadata['title']}", metadata)
 stream = ffmpeg.input(os.path.join(os.getcwd(), f"temp/{metadata['id']}"))
 stream = ffmpeg.output(stream, os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3"))
 ffmpeg.run(stream)
 
 # Tagging starts
 
-mp3 = MP3File(os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3"))
-mp3.set_version(VERSION_BOTH)
+mp3 = EasyID3(os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3"))
 
 del metadata["id"]
 del metadata["artwork"]
 del metadata["duration"]
+EasyID3.RegisterTextKey('comment', 'COMM')
 for prop in metadata:
     # print(prop)
     try:
-        setattr(mp3, prop, metadata[prop])
+        mp3[prop] = metadata[prop]
     except Exception as e:
         print(f"Exception {e} while trying to set {prop}")
 
