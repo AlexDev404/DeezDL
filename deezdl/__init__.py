@@ -1,5 +1,5 @@
-from download import download
-from search import search
+from deezdl.download import download
+from deezdl.search import search
 
 
 
