@@ -5,6 +5,8 @@ import requests
 from urllib.parse import urlparse
 from mutagen.easyid3 import EasyID3
 from youtube_dl import YoutubeDL
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC, error
 
 
 def search(arg, metadata):
@@ -21,7 +23,7 @@ def search(arg, metadata):
     return video
 
 
-def download(url, path):
+def download(url, path, optname):
     url = str(url)
     if not path:
         path = os.getcwd()
@@ -30,7 +32,13 @@ def download(url, path):
     g = requests.get(url, allow_redirects=True)
     url = urlparse(url)
     os.makedirs(path, exist_ok=True)
-    path = os.path.join(path, os.path.basename(url.path))
+    name = ""
+    if not optname:
+        name = os.path.basename(url.path)
+    else:
+        filename, file_extension = os.path.splitext(os.path.basename(url.path))
+        name = optname + file_extension
+    path = os.path.join(path, name)
     open(path, 'wb').write(g.content)
 
 
@@ -62,7 +70,7 @@ headers = {'Content-type': 'application/json', 'Authorization': f"Bearer {auth}"
 
 z = requests.post('https://pipe.deezer.com/api', data=json.dumps(rq), headers=headers)
 metadata = z.json()
-metadata = metadata["data"]["track"];
+metadata = metadata["data"]["track"]
 
 # Metadata
 
@@ -120,7 +128,7 @@ metadata = _meta
 # print(metadata)
 
 # Download artwork
-download(metadata["artwork"], os.path.join(os.getcwd(), "temp"))
+download(metadata["artwork"], os.path.join(os.getcwd(), "temp"), metadata["id"])
 
 # Sift through YouTube for the track and download m4a format
 search(f"{metadata['artist']} - {metadata['title']}", metadata)
@@ -129,9 +137,10 @@ stream = ffmpeg.output(stream, os.path.join(os.getcwd(), f"temp/{metadata['id']}
 ffmpeg.run(stream)
 
 # Tagging starts
+thisMP3 = os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3")
+mp3 = EasyID3(thisMP3)
 
-mp3 = EasyID3(os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3"))
-
+thisID = metadata["id"]
 del metadata["id"]
 del metadata["artwork"]
 del metadata["duration"]
@@ -142,14 +151,35 @@ for prop in metadata:
         mp3[prop] = metadata[prop]
     except Exception as e:
         print(f"Exception {e} while trying to set {prop}")
-
 mp3.save()
 # Get all tags.
-tags = mp3.get_tags()
-print(tags)
+# tags = mp3.get_tags()
+# print(tags)
 
 # Tagging ends
 
-# Cleanup
 
-os.remove(os.path.join(os.getcwd(), f"temp/{_meta['id']}"))
+# Add cover art
+mp3 = MP3(thisMP3, ID3=ID3)
+try:
+    mp3.add_tags()
+except error:
+    pass
+# print(mp3.getall('APIC'))
+coverpath = os.path.join(os.getcwd(), f"temp/{thisID}.jpg")
+cover = open(coverpath, "rb")
+mp3.tags.add( APIC(
+        mime='image/jpeg',
+        type=3,  # 3 is for album art
+        desc=u'Cover',
+        data=cover.read()  # Reads and adds album art
+    ))
+# print(mp3.getall('APIC'))
+# End cover art
+
+
+# Cleanup
+cover.close()
+mp3.save()
+os.remove(coverpath)
+os.remove(os.path.join(os.getcwd(), f"temp/{thisID}"))
