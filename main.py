@@ -9,21 +9,12 @@ from mutagen.id3 import ID3, APIC, error
 # Query
 
 schemaPath = os.path.join(os.getcwd(), "deezdl/schema/TrackFull.json")
-rq = json.load(open(schemaPath))
+schema = json.load(open(schemaPath))
 TId = input("Track Link: ")
 TId = urlparse(TId)
-rq["variables"]["trackId"] = os.path.basename(TId.path)
+schema["variables"]["trackId"] = os.path.basename(TId.path)
 
-# Login
-
-auth_endpoint = requests.get('https://auth.deezer.com/login/anonymous?jo=p')
-auth = auth_endpoint.json()["jwt"]
-
-headers = {'Content-type': 'application/json', 'Authorization': f"Bearer {auth}"}
-# print(rq)
-
-z = requests.post('https://pipe.deezer.com/api', data=json.dumps(rq), headers=headers)
-metadata = z.json()
+metadata = deezdl.authorize(schema)
 metadata = metadata["data"]["track"]
 
 # Metadata
@@ -85,7 +76,7 @@ metadata = _meta
 deezdl.download(metadata["artwork"], os.path.join(os.getcwd(), "temp"), metadata["id"])
 
 # Sift through YouTube for the track and download m4a format
-search(f"{metadata['artist']} - {metadata['title']}", metadata)
+deezdl.search(f"{metadata['artist']} - {metadata['title']}", metadata)
 stream = ffmpeg.input(os.path.join(os.getcwd(), f"temp/{metadata['id']}"))
 stream = ffmpeg.output(stream, os.path.join(os.getcwd(), f"temp/{metadata['id']}.mp3"))
 ffmpeg.run(stream)
