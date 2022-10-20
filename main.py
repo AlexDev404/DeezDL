@@ -1,6 +1,7 @@
 import json
 import ffmpeg
 import os
+import re
 import requests
 from urllib.parse import urlparse
 from mutagen.easyid3 import EasyID3
@@ -179,7 +180,13 @@ mp3.tags.add( APIC(
 
 
 # Cleanup
+# Remove redundant files
 cover.close()
 mp3.save()
 os.remove(coverpath)
 os.remove(os.path.join(os.getcwd(), f"temp/{thisID}"))
+
+# Rename accordingly
+fname = f"{metadata['artist']} - {metadata['title']}"
+fname = re.sub(r'[<>:"\/\\|?*]+', ' -', fname)
+os.rename(thisMP3, os.path.join(os.getcwd(), f"temp/{fname}.mp3"))
