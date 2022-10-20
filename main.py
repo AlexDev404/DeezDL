@@ -1,62 +1,15 @@
-import json
-import ffmpeg
-import os
-import re
-import requests
+import deezdl
+import json, ffmpeg, os, re, requests
 from urllib.parse import urlparse
 from mutagen.easyid3 import EasyID3
-from youtube_dl import YoutubeDL
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, error
 
 
-def search(arg, metadata):
-    YDL_OPTIONS = {'format': 'm4a', 'noplaylist': 'True',
-                   'outtmpl': os.path.join(os.getcwd(), f"temp/{metadata['id']}")}
-    with YoutubeDL(YDL_OPTIONS) as ydl:
-        try:
-            requests.get(arg)
-        except:
-            video = ydl.extract_info(f"ytsearch:{arg}", download=True)['entries'][0]
-        else:
-            video = ydl.extract_info(arg, download=True)
-
-    return video
-
-
-def download(url, path, optname):
-    url = str(url)
-    if not path:
-        path = os.getcwd()
-    else:
-        path = os.path.join(path)
-    g = requests.get(url, allow_redirects=True)
-    url = urlparse(url)
-    os.makedirs(path, exist_ok=True)
-    name = ""
-    if not optname:
-        name = os.path.basename(url.path)
-    else:
-        filename, file_extension = os.path.splitext(os.path.basename(url.path))
-        name = optname + file_extension
-    path = os.path.join(path, name)
-    open(path, 'wb').write(g.content)
-
-
 # Query
 
-r = r"""{
-    "operationName": "TrackFull",
-    "variables": {
-        "trackId": "",
-        "relatedAlbumsFirst": 0
-    },
-	"query": "query TrackFull($trackId: String!, $relatedAlbumsFirst: Int) {\r\n  track(trackId: $trackId) {\r\n    ...TrackMasthead\r\n    ...TrackLyrics\r\n    ...TrackRelatedAlbums\r\n    __typename\r\n  }\r\n}\r\n\r\nfragment TrackMasthead on Track {\r\n  ...TrackBase\r\n  duration\r\n  isExplicit\r\n  __typename\r\n}\r\n\r\nfragment TrackBase on Track {\r\n  id\r\n  title\r\n  ...TrackContributors\r\n  album {\r\n    id\r\n    displayTitle\r\n    cover {\r\n      small: urls(pictureRequest: {width: 100, height: 100})\r\n      medium: urls(pictureRequest: {width: 264, height: 264})\r\n      large: urls(pictureRequest: {width: 500, height: 500})\r\n      explicitStatus\r\n      __typename\r\n    }\r\n    __typename\r\n  }\r\n  __typename\r\n}\r\n\r\nfragment TrackContributors on Track {\r\n  contributors {\r\n    edges {\r\n      cursor\r\n      roles\r\n      node {\r\n        ... on Artist {\r\n          id\r\n          name\r\n          picture {\r\n            small: urls(pictureRequest: {width: 100, height: 100})\r\n            medium: urls(pictureRequest: {width: 264, height: 264})\r\n            large: urls(pictureRequest: {width: 500, height: 500})\r\n            copyright\r\n            explicitStatus\r\n            __typename\r\n          }\r\n          __typename\r\n        }\r\n        __typename\r\n      }\r\n      __typename\r\n}\r\n    __typename\r\n  }\r\n  __typename\r\n}\r\n\r\nfragment TrackLyrics on Track {\r\n  id\r\n  lyrics {\r\n    id\r\n    copyright\r\n    synchronizedLines {\r\n      line\r\n      __typename\r\n    }\r\n    text\r\n    writers\r\n    __typename\r\n  }\r\n  __typename\r\n}\r\n\r\nfragment TrackRelatedAlbums on Track {\r\n  relatedTracks(first: $relatedAlbumsFirst) {\r\n    edges {\r\n      node {\r\n        ...TrackBase\r\n        __typename\r\n      }\r\n      __typename\r\n    }\r\n    __typename\r\n  }\r\n  __typename\r\n}"
-    
-}"""
-
-rq = json.loads(r)
-
+schemaPath = os.path.join(os.getcwd(), "deezdl/schema/TrackFull.json")
+rq = json.load(open(schemaPath))
 TId = input("Track Link: ")
 TId = urlparse(TId)
 rq["variables"]["trackId"] = os.path.basename(TId.path)
@@ -129,7 +82,7 @@ metadata = _meta
 # print(metadata)
 
 # Download artwork
-download(metadata["artwork"], os.path.join(os.getcwd(), "temp"), metadata["id"])
+deezdl.download(metadata["artwork"], os.path.join(os.getcwd(), "temp"), metadata["id"])
 
 # Sift through YouTube for the track and download m4a format
 search(f"{metadata['artist']} - {metadata['title']}", metadata)
